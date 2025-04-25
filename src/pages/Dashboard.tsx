@@ -7,12 +7,32 @@ import { VisualizeData } from "@/components/VisualizeData";
 import { useCDRData } from "@/hooks/useCDRData";
 import { CDRSearchParams } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useState<CDRSearchParams>({});
   const { cdrs, summary, isLoading, error } = useCDRData(searchParams);
+  const [dateRange, setDateRange] = useState<{
+    from?: Date;
+    to?: Date;
+  }>({});
+
+  const handleDateSelect = (range: { from?: Date; to?: Date }) => {
+    setDateRange(range);
+    setSearchParams({
+      ...searchParams,
+      from_date: range.from?.toISOString(),
+      to_date: range.to?.toISOString(),
+    });
+  };
 
   const handleSearch = (params: CDRSearchParams) => {
     setSearchParams(params);
@@ -63,14 +83,46 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Call Analytics Dashboard</h1>
-          <Button 
-            onClick={exportToCSV} 
-            disabled={isLoading || cdrs.length === 0}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Export to CSV
-          </Button>
+          <div className="flex gap-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Select date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange.from}
+                  selected={dateRange}
+                  onSelect={handleDateSelect}
+                  numberOfMonths={2}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+            <Button 
+              onClick={exportToCSV} 
+              disabled={isLoading || cdrs.length === 0}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export to CSV
+            </Button>
+          </div>
         </div>
         
         {/* Visualizations */}
@@ -100,3 +152,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

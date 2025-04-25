@@ -55,7 +55,7 @@ export const VisualizeData = ({ summary, isLoading }: VisualizeDataProps) => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card className="bg-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Total Calls</CardTitle>
@@ -102,6 +102,24 @@ export const VisualizeData = ({ summary, isLoading }: VisualizeDataProps) => {
               <div className="p-3 bg-blue-100 rounded-full">
                 <div className="h-8 w-8 rounded-full bg-callOngoing flex items-center justify-center text-white">
                   📊
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Avg Handling Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-3xl font-bold">
+                {Math.floor(summary.avg_handling_time / 60)}m {summary.avg_handling_time % 60}s
+              </div>
+              <div className="p-3 bg-purple-100 rounded-full">
+                <div className="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                  ⌛
                 </div>
               </div>
             </div>

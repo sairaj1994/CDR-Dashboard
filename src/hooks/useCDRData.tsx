@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CDR, CDRSearchParams, CDRSummary } from "@/types";
 
@@ -92,6 +91,7 @@ export const useCDRData = (searchParams: CDRSearchParams = {}) => {
         );
       }
       
+      // Filter by date range
       if (searchParams.from_date) {
         const fromDate = new Date(searchParams.from_date);
         filtered = filtered.filter(
@@ -157,6 +157,9 @@ export const useCDRData = (searchParams: CDRSearchParams = {}) => {
         const totalDuration = filtered.reduce((sum, cdr) => sum + cdr.duration_seconds, 0);
         const avgDuration = Math.round(totalDuration / totalCalls);
         
+        // Calculate average handling time (including wrap-up time - mock data)
+        const avgHandlingTime = Math.round((totalDuration + (totalCalls * 30)) / totalCalls);
+
         // Group calls by date for chart data
         const callsByDay = filtered.reduce((acc: {[key: string]: number}, cdr) => {
           const date = new Date(cdr.start_time).toISOString().split('T')[0];
@@ -203,6 +206,7 @@ export const useCDRData = (searchParams: CDRSearchParams = {}) => {
           total_calls: totalCalls,
           total_duration: totalDuration,
           avg_duration: avgDuration,
+          avg_handling_time: avgHandlingTime,
           calls_by_day: callsByDayArray,
           top_users: topUsers,
           call_duration_distribution: durationDistribution

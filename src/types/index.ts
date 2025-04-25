@@ -1,4 +1,3 @@
-
 // Call Detail Record type
 export interface CDR {
   call_id: string;
@@ -51,6 +50,7 @@ export interface CDRSummary {
   total_calls: number;
   total_duration: number;
   avg_duration: number;
+  avg_handling_time: number;
   calls_by_day: {
     date: string;
     count: number;
