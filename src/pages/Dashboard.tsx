@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { SearchBar } from "@/components/SearchBar";
@@ -16,22 +15,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DateRange } from "react-day-picker";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useState<CDRSearchParams>({});
   const { cdrs, summary, isLoading, error } = useCDRData(searchParams);
-  const [dateRange, setDateRange] = useState<{
-    from?: Date;
-    to?: Date;
-  }>({});
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined
+  });
 
-  const handleDateSelect = (range: { from?: Date; to?: Date }) => {
+  const handleDateSelect = (range: DateRange | undefined) => {
     setDateRange(range);
-    setSearchParams({
-      ...searchParams,
-      from_date: range.from?.toISOString(),
-      to_date: range.to?.toISOString(),
-    });
+    if (range?.from) {
+      setSearchParams({
+        ...searchParams,
+        from_date: range.from.toISOString(),
+        to_date: range.to?.toISOString(),
+      });
+    }
   };
 
   const handleSearch = (params: CDRSearchParams) => {
@@ -88,7 +90,7 @@ const Dashboard = () => {
               <PopoverTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <CalendarIcon className="h-4 w-4" />
-                  {dateRange.from ? (
+                  {dateRange?.from ? (
                     dateRange.to ? (
                       <>
                         {format(dateRange.from, "LLL dd, y")} -{" "}
@@ -106,7 +108,7 @@ const Dashboard = () => {
                 <Calendar
                   initialFocus
                   mode="range"
-                  defaultMonth={dateRange.from}
+                  defaultMonth={dateRange?.from}
                   selected={dateRange}
                   onSelect={handleDateSelect}
                   numberOfMonths={2}
@@ -152,4 +154,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
