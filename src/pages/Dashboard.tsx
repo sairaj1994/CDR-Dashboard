@@ -6,6 +6,9 @@ import { CallTable } from "@/components/CallTable";
 import { VisualizeData } from "@/components/VisualizeData";
 import { useCDRData } from "@/hooks/useCDRData";
 import { CDRSearchParams } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useState<CDRSearchParams>({});
@@ -15,12 +18,60 @@ const Dashboard = () => {
     setSearchParams(params);
   };
 
+  const exportToCSV = () => {
+    try {
+      // Convert CDR data to CSV format
+      const headers = ['Call ID', 'From', 'To', 'Start Time', 'End Time', 'Duration (s)', 'Hangup By', 'Room'];
+      const rows = cdrs.map(cdr => [
+        cdr.call_id,
+        cdr.from_user,
+        cdr.to_user,
+        cdr.start_time,
+        cdr.end_time,
+        cdr.duration_seconds,
+        cdr.hangup_by,
+        cdr.room
+      ]);
+      
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `call_records_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Call records exported successfully");
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error("Failed to export call records");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">Call Analytics Dashboard</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Call Analytics Dashboard</h1>
+          <Button 
+            onClick={exportToCSV} 
+            disabled={isLoading || cdrs.length === 0}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export to CSV
+          </Button>
+        </div>
         
         {/* Visualizations */}
         <div className="mb-8">
